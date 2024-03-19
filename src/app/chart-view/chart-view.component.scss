@@ -1,0 +1,18 @@
+:host{
+    background-color: black;
+}
+
+.chart{
+    max-width: 900px;
+    height: 450px;
+    margin: 35px auto;
+}
+
+h3{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 30px;
+    color: oklch(61.42% 0.238 15.34);
+}
