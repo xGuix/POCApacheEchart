@@ -1,6 +1,7 @@
 import {
   AfterViewInit,
   Component,
+  ElementRef,
   Input,
   OnChanges,
   SimpleChanges,
@@ -15,10 +16,13 @@ import * as echarts from 'echarts';
 export class ChartViewComponent implements AfterViewInit, OnChanges {
   @Input() chartId!: string;
   data: any[] = [];
+  data2: any[] = [];
   isDarkMode = false;
   chart: any;
+  darkColor!: string;
+  lightColor!: string;
 
-  constructor() {}
+  constructor(private elementRef: ElementRef) {}
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['isDarkMode'] && this.chart) {
@@ -29,16 +33,23 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
   ngAfterViewInit() {
     this.chart = echarts.init(document.getElementById(this.chartId));
 
-    // Initialiser les données du graphique
+    // Correction : Utilisez les noms de variables sans le signe `$`
+    this.darkColor = getComputedStyle(
+      this.elementRef.nativeElement
+    ).getPropertyValue('--dark-theme-bkg');
+    this.lightColor = getComputedStyle(
+      this.elementRef.nativeElement
+    ).getPropertyValue('--light-theme-bkg');
+    console.log(this.darkColor);
+    console.log(this.lightColor);
+
     this.initializeChartData();
-    // Afficher le graphique
     this.renderChart();
 
-    // Mettre à jour les données périodiquement
     setInterval(() => {
       this.updateChartData();
       this.renderChart();
-    }, 100);
+    }, 300);
   }
 
   toggleDarkMode() {
@@ -53,7 +64,8 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
     const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
     for (let i = 0; i < 1000; i++) {
       const date = new Date(oneMinuteEarlier.getTime() + i * 60);
-      this.data.push([date, Math.floor(Math.random() * 60) + 30]);
+      this.data.push([date, Math.floor(Math.random() * 30) + 30]);
+      this.data2.push([date, Math.floor(Math.random() * 30) + 60]);
     }
   }
 
@@ -61,6 +73,9 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
     this.chart.setOption({
       title: {
         text: 'Data with Time Axis',
+        textStyle: {
+          color: this.isDarkMode ? '#eee' : '#aaa',
+        },
       },
       tooltip: {
         trigger: 'axis',
@@ -74,27 +89,58 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
         splitLine: {
           show: false,
         },
+        axisLine: {
+          lineStyle: {
+            color: this.isDarkMode ? '#eee' : '#aaa',
+            width: 2,
+          },
+        },
+        axisTick: {
+          linestyle: {
+            color: this.isDarkMode ? '#eee' : '#aaa',
+          },
+        },
+        axisLabel: {
+          color: this.isDarkMode ? '#eee' : '#aaa',
+          fontSize: 12,
+          padding: [9, 0],
+        },
       },
       yAxis: {
         type: 'value',
         boundaryGap: [0, '100%'],
-        max: 100,
+        min: 10,
+        max: 90,
         splitLine: {
           show: true,
         },
+        axisLabel: {
+          color: this.isDarkMode ? '#eee' : '#aaa',
+        },
       },
-      color: ['#f7f494'],
+      color: ['#72ccff', '#87f7cf'],
       series: [
         {
           name: 'Fake Data',
           type: 'line',
           lineStyle: {
-            width: 1,
+            width: 1.5,
           },
           smooth: true,
           animation: false,
           showSymbol: false,
           data: this.data,
+        },
+        {
+          name: 'Fake Data 2',
+          type: 'line',
+          lineStyle: {
+            width: 1.5,
+          },
+          smooth: true,
+          animation: false,
+          showSymbol: false,
+          data: this.data2,
         },
       ],
     });
@@ -107,14 +153,17 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
   private updateChartData() {
     if (this.data.length > 1000) {
       this.data.shift();
+      this.data2.shift();
     }
     this.data.push(this.randomData());
+    this.data2.push(this.randomData());
   }
 
   public updateBackgroundColor() {
     if (this.chart) {
       this.chart.setOption({
-        backgroundColor: this.isDarkMode ? 'rgba(41,52,65,1)' : 'white',
+        backgroundColor: this.isDarkMode ? this.darkColor : this.lightColor,
+        color: this.isDarkMode ? 'white' : 'black',
       });
     }
   }
