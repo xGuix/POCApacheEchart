@@ -1,20 +1,13 @@
-
+//Colors themes variables
 $dark-theme-bkg: rgba(41, 52, 65, 1);
 $light-theme-bkg: rgba(246, 246, 246, 1);
 
-:root {
-    --dark-theme-bkg: #{$dark-theme-bkg};
-    --light-theme-bkg: #{$light-theme-bkg};
-}
-
-.darkContainer {        
+.darkContainer {
     background-color: $dark-theme-bkg;
-    color: $light-theme-bkg;
 }
 
 .lightContainer{
     background-color: $light-theme-bkg;
-    color: $dark-theme-bkg;
 }
 
 .container{

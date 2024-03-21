@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  Input,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input } from '@angular/core';
 import * as echarts from 'echarts';
 
 @Component({
@@ -13,35 +6,26 @@ import * as echarts from 'echarts';
   templateUrl: './chart-view.component.html',
   styleUrls: ['./chart-view.component.scss'],
 })
-export class ChartViewComponent implements AfterViewInit, OnChanges {
+export class ChartViewComponent implements AfterViewInit {
   @Input() chartId!: string;
   data: any[] = [];
   data2: any[] = [];
-  isDarkMode = false;
   chart: any;
+  isDarkMode = false;
   darkColor!: string;
   lightColor!: string;
 
   constructor(private elementRef: ElementRef) {}
 
-  ngOnChanges(changes: SimpleChanges) {
-    if (changes['isDarkMode'] && this.chart) {
-      this.updateBackgroundColor();
-    }
-  }
-
   ngAfterViewInit() {
     this.chart = echarts.init(document.getElementById(this.chartId));
 
-    // Correction : Utilisez les noms de variables sans le signe `$`
-    this.darkColor = getComputedStyle(
-      this.elementRef.nativeElement
-    ).getPropertyValue('--dark-theme-bkg');
-    this.lightColor = getComputedStyle(
-      this.elementRef.nativeElement
-    ).getPropertyValue('--light-theme-bkg');
-    console.log(this.darkColor);
-    console.log(this.lightColor);
+    // Accéder à l'élément DOM du composant
+    const element = this.elementRef.nativeElement;
+    this.darkColor =
+      getComputedStyle(element).getPropertyValue('--dark-theme-bkg');
+    this.lightColor =
+      getComputedStyle(element).getPropertyValue('--light-theme-bkg');
 
     this.initializeChartData();
     this.renderChart();
@@ -54,9 +38,6 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
-    if (this.chart) {
-      this.updateBackgroundColor();
-    }
   }
 
   private initializeChartData() {
@@ -74,7 +55,7 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
       title: {
         text: 'Data with Time Axis',
         textStyle: {
-          color: this.isDarkMode ? '#eee' : '#aaa',
+          color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
       },
       tooltip: {
@@ -91,17 +72,17 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
         },
         axisLine: {
           lineStyle: {
-            color: this.isDarkMode ? '#eee' : '#aaa',
+            color: this.isDarkMode ? this.lightColor : this.darkColor,
             width: 2,
           },
         },
         axisTick: {
           linestyle: {
-            color: this.isDarkMode ? '#eee' : '#aaa',
+            color: this.isDarkMode ? this.lightColor : this.darkColor,
           },
         },
         axisLabel: {
-          color: this.isDarkMode ? '#eee' : '#aaa',
+          color: this.isDarkMode ? this.lightColor : this.darkColor,
           fontSize: 12,
           padding: [9, 0],
         },
@@ -115,7 +96,7 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
           show: true,
         },
         axisLabel: {
-          color: this.isDarkMode ? '#eee' : '#aaa',
+          color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
       },
       color: ['#72ccff', '#87f7cf'],
@@ -157,14 +138,5 @@ export class ChartViewComponent implements AfterViewInit, OnChanges {
     }
     this.data.push(this.randomData());
     this.data2.push(this.randomData());
-  }
-
-  public updateBackgroundColor() {
-    if (this.chart) {
-      this.chart.setOption({
-        backgroundColor: this.isDarkMode ? this.darkColor : this.lightColor,
-        color: this.isDarkMode ? 'white' : 'black',
-      });
-    }
   }
 }
