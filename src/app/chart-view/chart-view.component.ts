@@ -8,8 +8,9 @@ import * as echarts from 'echarts';
 })
 export class ChartViewComponent implements AfterViewInit {
   @Input() chartId!: string;
-  data: any[] = [];
+  data1: any[] = [];
   data2: any[] = [];
+  data3: any[] = [];
   chart: any;
   isDarkMode = false;
   darkColor!: string;
@@ -45,25 +46,56 @@ export class ChartViewComponent implements AfterViewInit {
     const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
     for (let i = 0; i < 1000; i++) {
       const date = new Date(oneMinuteEarlier.getTime() + i * 60);
-      this.data.push([date, Math.floor(Math.random() * 30) + 30]);
-      this.data2.push([date, Math.floor(Math.random() * 30) + 60]);
+      const randomValue = Math.floor(Math.random() * 30) - 15;
+      this.data1.push([date, randomValue + 10]);
+      this.data2.push([date, randomValue + 0]);
+      this.data3.push([date, randomValue - 10]);
     }
   }
 
   private renderChart() {
     this.chart.setOption({
+      color: ['#72ccff', '#87f7cf', ' #fc97af'],
       title: {
-        text: 'Data with Time Axis',
+        text: 'Temperature with Time Axis',
         textStyle: {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
       },
-      tooltip: {
-        trigger: 'axis',
-        axisPointer: {
-          animation: false,
+      legend: {
+        type: 'plain',
+        show: true,
+        right: 30,
+        orient: 'horizontal',
+        align: 'left',
+        textStyle: {
+          color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
-        toolbar: true,
+      },
+      toolbox: {
+        show: true,
+        orient: 'vertical',
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none',
+          },
+          dataView: {
+            show: true,
+            readOnly: true,
+            title: 'Data View',
+          },
+          magicType: { type: ['line', 'bar'] },
+          restore: {},
+          saveAsImage: {
+            show: true,
+            title: 'Export Image',
+          },
+        },
+        iconStyle: {
+          borderColor: this.isDarkMode ? this.lightColor : this.darkColor,
+        },
+        right: 15,
+        bottom: 125,
       },
       xAxis: {
         type: 'time',
@@ -73,7 +105,7 @@ export class ChartViewComponent implements AfterViewInit {
         axisLine: {
           lineStyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
-            width: 2,
+            width: 1,
           },
         },
         axisTick: {
@@ -90,8 +122,8 @@ export class ChartViewComponent implements AfterViewInit {
       yAxis: {
         type: 'value',
         boundaryGap: [0, '100%'],
-        min: 10,
-        max: 90,
+        min: -36,
+        max: 36,
         splitLine: {
           show: true,
         },
@@ -99,10 +131,9 @@ export class ChartViewComponent implements AfterViewInit {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
       },
-      color: ['#72ccff', '#87f7cf'],
       series: [
         {
-          name: 'Fake Data',
+          name: 'Fake Temperature 1',
           type: 'line',
           lineStyle: {
             width: 1.5,
@@ -110,10 +141,19 @@ export class ChartViewComponent implements AfterViewInit {
           smooth: true,
           animation: false,
           showSymbol: false,
-          data: this.data,
+          data: this.data1,
+          markPoint: {
+            data: [
+              { type: 'max', name: 'Max' },
+              { type: 'min', name: 'Min' },
+            ],
+          },
+          markLine: {
+            data: [{ type: 'average', name: 'Avg' }],
+          },
         },
         {
-          name: 'Fake Data 2',
+          name: 'Fake Temperature 2',
           type: 'line',
           lineStyle: {
             width: 1.5,
@@ -122,21 +162,52 @@ export class ChartViewComponent implements AfterViewInit {
           animation: false,
           showSymbol: false,
           data: this.data2,
+          markPoint: {
+            data: [
+              { type: 'max', name: 'Max' },
+              { type: 'min', name: 'Min' },
+            ],
+          },
+          markLine: {
+            data: [{ type: 'average', name: 'Avg' }],
+          },
+        },
+        {
+          name: 'Fake Temperature 3',
+          type: 'line',
+          lineStyle: {
+            width: 1.5,
+          },
+          smooth: true,
+          animation: false,
+          showSymbol: false,
+          data: this.data3,
+          markPoint: {
+            data: [
+              { type: 'max', name: 'Max' },
+              { type: 'min', name: 'Min' },
+            ],
+          },
+          markLine: {
+            data: [{ type: 'average', name: 'Avg' }],
+          },
         },
       ],
     });
   }
 
-  private randomData() {
-    return [new Date(), Math.floor(Math.random() * 60) + 30];
+  private randomData(adjust: number) {
+    return [new Date(), Math.floor(Math.random() * 20) + adjust];
   }
 
   private updateChartData() {
-    if (this.data.length > 1000) {
-      this.data.shift();
+    if (this.data1.length > 1000) {
+      this.data1.shift();
       this.data2.shift();
+      this.data3.shift();
     }
-    this.data.push(this.randomData());
-    this.data2.push(this.randomData());
+    this.data1.push(this.randomData(+10));
+    this.data2.push(this.randomData(+0));
+    this.data3.push(this.randomData(-10));
   }
 }
