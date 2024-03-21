@@ -2,15 +2,14 @@ import { AfterViewInit, Component, ElementRef, Input } from '@angular/core';
 import * as echarts from 'echarts';
 
 @Component({
-  selector: 'app-chart-view',
-  templateUrl: './chart-view.component.html',
-  styleUrls: ['./chart-view.component.scss'],
+  selector: 'app-chart-double-view',
+  templateUrl: './chart-double-view.component.html',
+  styleUrls: ['./chart-double-view.component.scss'],
 })
-export class ChartViewComponent implements AfterViewInit {
+export class ChartDoubleViewComponent implements AfterViewInit {
   @Input() chartId!: string;
   data1: any[] = [];
   data2: any[] = [];
-  data3: any[] = [];
   chart: any;
   isDarkMode = false;
   darkColor!: string;
@@ -49,7 +48,6 @@ export class ChartViewComponent implements AfterViewInit {
       const randomValue = Math.floor(Math.random() * 2) - 1;
       this.data1.push([date, randomValue + 15]);
       this.data2.push([date, randomValue + 0]);
-      this.data3.push([date, randomValue - 15]);
     }
   }
 
@@ -117,19 +115,37 @@ export class ChartViewComponent implements AfterViewInit {
           padding: [9, 0],
         },
       },
-      yAxis: {
-        type: 'value',
-        boundaryGap: [0, 0],
-        //min: -30,
-        //max: 30,
-        splitLine: {
-          show: true,
+      yAxis: [
+        {
+          type: 'value',
+          //boundaryGap: [0, 0],
+          min: -150,
+          max: 10,
+          splitLine: {
+            show: true,
+          },
+          axisLabel: {
+            color: this.isDarkMode ? this.lightColor : this.darkColor,
+            formatter: '{value} db',
+          },
         },
-        axisLabel: {
-          color: this.isDarkMode ? this.lightColor : this.darkColor,
-          formatter: '{value} °C',
+        {
+          yAxis: {
+            type: 'value',
+            position: 'right',
+            //boundaryGap: [0, 0],
+            min: 0,
+            max: 360,
+            splitLine: {
+              show: true,
+            },
+            axisLabel: {
+              color: this.isDarkMode ? this.lightColor : this.darkColor,
+              formatter: '{value}°',
+            },
+          },
         },
-      },
+      ],
       tooltip: {
         show: true,
         trigger: 'axis',
@@ -143,12 +159,11 @@ export class ChartViewComponent implements AfterViewInit {
       },
       series: [
         {
-          name: 'Fake Temperature 1',
+          name: 'Fake decibel signal',
           type: 'line',
           lineStyle: {
             width: 1.2,
           },
-          areaStyle: {},
           smooth: true,
           animation: false,
           showSymbol: false,
@@ -172,12 +187,11 @@ export class ChartViewComponent implements AfterViewInit {
           },
         },
         {
-          name: 'Fake Temperature 2',
+          name: 'Fake degres position',
           type: 'line',
           lineStyle: {
             width: 1.2,
           },
-          areaStyle: {},
           smooth: true,
           animation: false,
           showSymbol: false,
@@ -196,37 +210,6 @@ export class ChartViewComponent implements AfterViewInit {
               borderWidth: 0,
             },
           },
-          stack: 'temperature',
-          tooltip: {
-            show: true,
-          },
-        },
-        {
-          name: 'Fake Temperature 3',
-          type: 'line',
-          lineStyle: {
-            width: 1.2,
-          },
-          areaStyle: {},
-          smooth: true,
-          animation: false,
-          showSymbol: false,
-          symbolSize: 6,
-          data: this.data3,
-          markPoint: {
-            data: [
-              { type: 'max', name: 'Max' },
-              { type: 'min', name: 'Min' },
-            ],
-          },
-          markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
-            label: {
-              color: '#bbb',
-              borderWidth: 0,
-            },
-          },
-          stack: 'temperature',
           tooltip: {
             show: true,
           },
@@ -236,17 +219,15 @@ export class ChartViewComponent implements AfterViewInit {
   }
 
   private randomData(adjust: number) {
-    return [new Date(), Math.floor(Math.random() * 10) - 5 + adjust];
+    return [new Date(), Math.floor(Math.random() * 20) - 10 + adjust];
   }
 
   private updateChartData() {
     if (this.data1.length > 1000) {
       this.data1.shift();
       this.data2.shift();
-      this.data3.shift();
     }
-    this.data1.push(this.randomData(+15));
+    this.data1.push(this.randomData(-25));
     this.data2.push(this.randomData(0));
-    this.data3.push(this.randomData(-15));
   }
 }
