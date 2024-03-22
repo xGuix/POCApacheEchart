@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input } from '@angular/core';
-import * as echarts from 'echarts';
+import * as echarts from 'echarts/lib/echarts';
+import 'echarts/lib/chart/line';
 
 @Component({
   selector: 'app-chart-double-view',
@@ -46,13 +47,15 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     for (let i = 0; i < 1000; i++) {
       const date = new Date(oneMinuteEarlier.getTime() + i * 60);
       const randomValue = Math.floor(Math.random() * 2) - 1;
-      this.data1.push([date, randomValue + 15]);
-      this.data2.push([date, randomValue + 0]);
+      this.data1.push([date, randomValue]);
+      this.data2.push([date, randomValue]);
     }
   }
 
   private renderChart() {
     this.chart.setOption({
+      darkMode: 'auto',
+      backgroungColor: this.isDarkMode ? this.lightColor : this.darkColor,
       color: ['#72ccff', '#87f7cf', ' #fc97af'],
       title: {
         text: 'Temperature with Time Axis',
@@ -75,7 +78,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         orient: 'vertical',
         feature: {
           dataZoom: {
-            yAxisIndex: 'none',
+            yAxisIndex: [0, 1],
           },
           dataView: {
             show: true,
@@ -85,7 +88,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           restore: {},
           saveAsImage: {
             show: true,
-            title: 'Export Image',
+            title: "Export l'image",
           },
         },
         iconStyle: {
@@ -118,9 +121,10 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       yAxis: [
         {
           type: 'value',
-          //boundaryGap: [0, 0],
-          min: -150,
-          max: 10,
+          position: 'left',
+          boundaryGap: [0, 0],
+          //min: -150,
+          //max: 10,
           splitLine: {
             show: true,
           },
@@ -133,7 +137,6 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           yAxis: {
             type: 'value',
             position: 'right',
-            //boundaryGap: [0, 0],
             min: 0,
             max: 360,
             splitLine: {
@@ -222,12 +225,16 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     return [new Date(), Math.floor(Math.random() * 20) - 10 + adjust];
   }
 
+  private fonctionSinusoidale(x: number) {
+    return [new Date(), -50 + 10 * Math.sin(0.3 * x) + 0.6 * Math.cos(1 * x)];
+  }
+
   private updateChartData() {
     if (this.data1.length > 1000) {
       this.data1.shift();
       this.data2.shift();
     }
-    this.data1.push(this.randomData(-25));
-    this.data2.push(this.randomData(0));
+    this.data1.push(this.randomData(+10));
+    this.data2.push(this.randomData(-10));
   }
 }
