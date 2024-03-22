@@ -47,18 +47,20 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     for (let i = 0; i < 1000; i++) {
       const date = new Date(oneMinuteEarlier.getTime() + i * 60);
       const randomValue = Math.floor(Math.random() * 2) - 1;
-      this.data1.push([date, randomValue]);
-      this.data2.push([date, randomValue]);
+      this.data1.push([
+        date,
+        100 * Math.sin(0.3 * date.getTime()) + 0.4 * Math.cos(date.getTime()),
+      ]);
+      this.data2.push([date, randomValue - 10]);
     }
   }
 
   private renderChart() {
     this.chart.setOption({
-      darkMode: 'auto',
-      backgroungColor: this.isDarkMode ? this.lightColor : this.darkColor,
       color: ['#72ccff', '#87f7cf', ' #fc97af'],
       title: {
         text: 'Temperature with Time Axis',
+        left: 24,
         textStyle: {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
@@ -66,12 +68,18 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       legend: {
         type: 'plain',
         show: true,
-        right: 30,
+        right: 24,
         orient: 'horizontal',
         align: 'left',
         textStyle: {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
+      },
+      grid: {
+        top: 84,
+        left: 90,
+        width: 690,
+        height: 300,
       },
       toolbox: {
         show: true,
@@ -94,7 +102,8 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         iconStyle: {
           borderColor: this.isDarkMode ? this.lightColor : this.darkColor,
         },
-        top: 125,
+        top: 135,
+        right: 15,
       },
       xAxis: {
         type: 'time',
@@ -108,6 +117,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           },
         },
         axisTick: {
+          show: true,
           linestyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
           },
@@ -120,13 +130,24 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       },
       yAxis: [
         {
+          name: 'SIGNAL',
           type: 'value',
           position: 'left',
+          alignTicks: false,
           boundaryGap: [0, 0],
-          //min: -150,
-          //max: 10,
+          min: -150,
+          max: 10,
+          scale: true,
+          interval: 30,
           splitLine: {
-            show: true,
+            show: false,
+            opacity: 0.5,
+          },
+          axisLine: {
+            show: false,
+            onZero: false,
+            symbol: 'arrow',
+            symbolSize: [6, 6],
           },
           axisLabel: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
@@ -134,18 +155,27 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           },
         },
         {
-          yAxis: {
-            type: 'value',
-            position: 'right',
-            min: 0,
-            max: 360,
-            splitLine: {
-              show: true,
-            },
-            axisLabel: {
-              color: this.isDarkMode ? this.lightColor : this.darkColor,
-              formatter: '{value}°',
-            },
+          name: 'POSITION',
+          type: 'value',
+          position: 'right',
+          alignTicks: false,
+          min: 0,
+          max: 360,
+          scale: true,
+          interval: 90,
+          splitLine: {
+            show: true,
+            opacity: 0.5,
+          },
+          axisLine: {
+            show: false,
+            onZero: false,
+            symbol: 'arrow',
+            symbolSize: [6, 6],
+          },
+          axisLabel: {
+            color: this.isDarkMode ? this.lightColor : this.darkColor,
+            formatter: '{value}°',
           },
         },
       ],
@@ -179,9 +209,16 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
+            data: [
+              {
+                type: 'average',
+                name: 'Avg',
+              },
+            ],
             label: {
-              color: '#bbb',
+              position: 'insideMiddleTop',
+              fontSize: 13,
+              color: '#aaa',
               borderWidth: 0,
             },
           },
@@ -207,9 +244,16 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
+            data: [
+              {
+                type: 'average',
+                name: 'Avg',
+              },
+            ],
             label: {
-              color: '#bbb',
+              position: 'insideMiddleTop',
+              fontSize: 13,
+              color: '#aaa',
               borderWidth: 0,
             },
           },
@@ -225,8 +269,12 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     return [new Date(), Math.floor(Math.random() * 20) - 10 + adjust];
   }
 
-  private fonctionSinusoidale(x: number) {
-    return [new Date(), -50 + 10 * Math.sin(0.3 * x) + 0.6 * Math.cos(1 * x)];
+  private fonctionSinusoidale() {
+    const date = new Date();
+    return [
+      date,
+      100 * Math.sin(0.3 * date.getTime()) + 0.4 * Math.cos(date.getTime()),
+    ];
   }
 
   private updateChartData() {
@@ -234,7 +282,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       this.data1.shift();
       this.data2.shift();
     }
-    this.data1.push(this.randomData(+10));
+    this.data1.push(this.fonctionSinusoidale());
     this.data2.push(this.randomData(-10));
   }
 }
