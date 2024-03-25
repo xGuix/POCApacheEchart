@@ -1,4 +1,6 @@
 <main>
   <h1> {{ title }} </h1>
-  <app-chart-double-view></app-chart-double-view>
+  <app-chart-view [chartId]="'SimpleAxisView'"></app-chart-view>
+  <br>
+  <app-chart-double-view [chartId]="'DoubleAxisView'"></app-chart-double-view>
 </main>

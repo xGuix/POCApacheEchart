@@ -8,9 +8,9 @@ import * as echarts from 'echarts';
 })
 export class ChartViewComponent implements AfterViewInit {
   @Input() chartId!: string;
-  data1: any[] = [];
-  data2: any[] = [];
-  data3: any[] = [];
+  dataTempOne: any[] = [];
+  dataTempTwo: any[] = [];
+  dataTempThree: any[] = [];
   chart: any;
   isDarkMode = false;
   darkColor!: string;
@@ -41,23 +41,32 @@ export class ChartViewComponent implements AfterViewInit {
     this.isDarkMode = !this.isDarkMode;
   }
 
+  private fonctionSinusoidale(date: Date, position: number, amplitude: number) {
+    const traceLine =
+      position +
+      amplitude *
+        (2 * Math.sin(0.00006 * date.getTime()) +
+          Math.cos(0.0008 * date.getTime()) +
+          (Math.random() - 0.5) / 2);
+    return [date, Math.round(traceLine * 100) / 100];
+  }
+
   private initializeChartData() {
     const currentTime = new Date();
     const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
     for (let i = 0; i < 1000; i++) {
-      const date = new Date(oneMinuteEarlier.getTime() + i * 60);
-      const randomValue = Math.floor(Math.random() * 2) - 1;
-      this.data1.push([date, randomValue + 15]);
-      this.data2.push([date, randomValue + 0]);
-      this.data3.push([date, randomValue - 15]);
+      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
+      this.dataTempOne.push(this.fonctionSinusoidale(pastDate, 0, 1));
+      this.dataTempTwo.push(this.fonctionSinusoidale(pastDate, -10, 1));
+      this.dataTempThree.push(this.fonctionSinusoidale(pastDate, +10, 1));
     }
   }
 
   private renderChart() {
     this.chart.setOption({
-      color: ['#72ccff', '#87f7cf', ' #fc97af'],
+      color: ['#87f7cf', '#72ccff', ' #fc97af'],
       title: {
-        text: 'Temperature with Time Axis',
+        text: 'TEMPERATURE AXIS',
         textStyle: {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
@@ -148,13 +157,21 @@ export class ChartViewComponent implements AfterViewInit {
           lineStyle: {
             width: 1.2,
           },
-          areaStyle: {},
+          areaStyle: {
+            opacity: 0.3,
+          },
           smooth: true,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.data1,
+          data: this.dataTempOne,
           markPoint: {
+            symbolSize: 60,
+            label: {
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
             data: [
               { type: 'max', name: 'Max' },
               { type: 'min', name: 'Min' },
@@ -167,6 +184,7 @@ export class ChartViewComponent implements AfterViewInit {
               borderWidth: 0,
             },
           },
+          stack: 'temperature',
           tooltip: {
             show: true,
           },
@@ -177,13 +195,21 @@ export class ChartViewComponent implements AfterViewInit {
           lineStyle: {
             width: 1.2,
           },
-          areaStyle: {},
+          areaStyle: {
+            opacity: 0.3,
+          },
           smooth: true,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.data2,
+          data: this.dataTempTwo,
           markPoint: {
+            symbolSize: 60,
+            label: {
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
             data: [
               { type: 'max', name: 'Max' },
               { type: 'min', name: 'Min' },
@@ -207,13 +233,21 @@ export class ChartViewComponent implements AfterViewInit {
           lineStyle: {
             width: 1.2,
           },
-          areaStyle: {},
+          areaStyle: {
+            opacity: 0.3,
+          },
           smooth: true,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.data3,
+          data: this.dataTempThree,
           markPoint: {
+            symbolSize: 60,
+            label: {
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
             data: [
               { type: 'max', name: 'Max' },
               { type: 'min', name: 'Min' },
@@ -235,18 +269,15 @@ export class ChartViewComponent implements AfterViewInit {
     });
   }
 
-  private randomData(adjust: number) {
-    return [new Date(), Math.floor(Math.random() * 10) - 5 + adjust];
-  }
-
   private updateChartData() {
-    if (this.data1.length > 1000) {
-      this.data1.shift();
-      this.data2.shift();
-      this.data3.shift();
+    if (this.dataTempOne.length > 1000) {
+      this.dataTempOne.shift();
+      this.dataTempTwo.shift();
+      this.dataTempThree.shift();
     }
-    this.data1.push(this.randomData(+15));
-    this.data2.push(this.randomData(0));
-    this.data3.push(this.randomData(-15));
+    const dateNow = new Date();
+    this.dataTempOne.push(this.fonctionSinusoidale(dateNow, 0, 1));
+    this.dataTempTwo.push(this.fonctionSinusoidale(dateNow, -10, 1));
+    this.dataTempThree.push(this.fonctionSinusoidale(dateNow, +10, 1));
   }
 }

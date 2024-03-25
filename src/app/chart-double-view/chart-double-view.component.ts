@@ -9,8 +9,9 @@ import 'echarts/lib/chart/line';
 })
 export class ChartDoubleViewComponent implements AfterViewInit {
   @Input() chartId!: string;
-  data1: any[] = [];
-  data2: any[] = [];
+  dataSignal: any[] = [];
+  dataPosition: any[] = [];
+  dataElevation: any[] = [];
   chart: any;
   isDarkMode = false;
   darkColor!: string;
@@ -45,21 +46,39 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     const currentTime = new Date();
     const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
     for (let i = 0; i < 1000; i++) {
-      const date = new Date(oneMinuteEarlier.getTime() + i * 60);
-      const randomValue = Math.floor(Math.random() * 2) - 1;
-      this.data1.push([
-        date,
-        100 * Math.sin(0.3 * date.getTime()) + 0.4 * Math.cos(date.getTime()),
+      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
+      this.dataSignal.push([
+        pastDate,
+        Math.round(
+          -30 +
+            60 * Math.sin(0.1 * pastDate.getTime()) +
+            Math.cos(3 * pastDate.getTime())
+        ),
       ]);
-      this.data2.push([date, randomValue - 10]);
+      this.dataPosition.push([
+        pastDate,
+        Math.round(
+          180 +
+            10 * Math.sin(0.1 * pastDate.getTime()) +
+            Math.cos(0.9 * pastDate.getTime())
+        ),
+      ]);
+      this.dataElevation.push([
+        pastDate,
+        Math.round(
+          45 +
+            5 * Math.sin(0.1 * pastDate.getTime()) +
+            Math.cos(0.9 * pastDate.getTime())
+        ),
+      ]);
     }
   }
 
   private renderChart() {
     this.chart.setOption({
-      color: ['#72ccff', '#87f7cf', ' #fc97af'],
+      color: ['#72ccff', ' #fc97af', '#87f7cf'],
       title: {
-        text: 'Temperature with Time Axis',
+        text: 'DECIBELS & DEGREES AXIS',
         left: 24,
         textStyle: {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
@@ -135,8 +154,8 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           position: 'left',
           alignTicks: false,
           boundaryGap: [0, 0],
-          min: -150,
-          max: 10,
+          //min: -150,
+          //max: 10,
           scale: true,
           interval: 30,
           splitLine: {
@@ -192,16 +211,19 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       },
       series: [
         {
-          name: 'Fake decibel signal',
+          name: 'Fake signal',
           type: 'line',
           lineStyle: {
             width: 1.2,
+          },
+          areaStyle: {
+            opacity: 0.3,
           },
           smooth: true,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.data1,
+          data: this.dataSignal,
           markPoint: {
             data: [
               { type: 'max', name: 'Max' },
@@ -218,7 +240,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             label: {
               position: 'insideMiddleTop',
               fontSize: 13,
-              color: '#aaa',
+              color: this.isDarkMode ? this.lightColor : this.darkColor,
               borderWidth: 0,
             },
           },
@@ -227,8 +249,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           },
         },
         {
-          name: 'Fake degres position',
+          name: 'Fake azimut',
           type: 'line',
+          yAxisIndex: 1,
           lineStyle: {
             width: 1.2,
           },
@@ -236,8 +259,14 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.data2,
+          data: this.dataPosition,
           markPoint: {
+            symbolSize: 60,
+            label: {
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
             data: [
               { type: 'max', name: 'Max' },
               { type: 'min', name: 'Min' },
@@ -253,7 +282,49 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             label: {
               position: 'insideMiddleTop',
               fontSize: 13,
-              color: '#aaa',
+              color: this.isDarkMode ? this.lightColor : this.darkColor,
+              borderWidth: 0,
+            },
+          },
+          tooltip: {
+            show: true,
+          },
+        },
+        {
+          name: 'Fake elevation',
+          type: 'line',
+          yAxisIndex: 1,
+          lineStyle: {
+            width: 1.2,
+          },
+          smooth: true,
+          animation: false,
+          showSymbol: false,
+          symbolSize: 6,
+          data: this.dataElevation,
+          markPoint: {
+            symbolSize: 60,
+            label: {
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
+            data: [
+              { type: 'max', name: 'Max' },
+              { type: 'min', name: 'Min' },
+            ],
+          },
+          markLine: {
+            data: [
+              {
+                type: 'average',
+                name: 'Avg',
+              },
+            ],
+            label: {
+              position: 'insideMiddleTop',
+              fontSize: 13,
+              color: this.isDarkMode ? this.lightColor : this.darkColor,
               borderWidth: 0,
             },
           },
@@ -265,24 +336,23 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     });
   }
 
-  private randomData(adjust: number) {
-    return [new Date(), Math.floor(Math.random() * 20) - 10 + adjust];
-  }
-
-  private fonctionSinusoidale() {
+  private fonctionSinusoidale(position: number, amplitude: number) {
     const date = new Date();
-    return [
-      date,
-      100 * Math.sin(0.3 * date.getTime()) + 0.4 * Math.cos(date.getTime()),
-    ];
+    const traceLine =
+      position +
+      amplitude * Math.sin(0.1 * date.getTime()) +
+      Math.cos(3 * date.getTime());
+    return [date, Math.round(traceLine)];
   }
 
   private updateChartData() {
-    if (this.data1.length > 1000) {
-      this.data1.shift();
-      this.data2.shift();
+    if (this.dataPosition.length > 1000) {
+      this.dataSignal.shift();
+      this.dataPosition.shift();
+      this.dataElevation.shift();
     }
-    this.data1.push(this.fonctionSinusoidale());
-    this.data2.push(this.randomData(-10));
+    this.dataSignal.push(this.fonctionSinusoidale(-30, 90));
+    this.dataPosition.push(this.fonctionSinusoidale(180, 10));
+    this.dataElevation.push(this.fonctionSinusoidale(45, 5));
   }
 }
