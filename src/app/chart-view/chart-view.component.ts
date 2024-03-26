@@ -21,7 +21,7 @@ export class ChartViewComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.chart = echarts.init(document.getElementById(this.chartId));
 
-    // Accéder à l'élément DOM du composant
+    // Component DOM element acces
     const element = this.elementRef.nativeElement;
     this.darkColor =
       getComputedStyle(element).getPropertyValue('--dark-theme-bkg');
@@ -48,7 +48,7 @@ export class ChartViewComponent implements AfterViewInit {
         (2 * Math.sin(0.00006 * date.getTime()) +
           Math.cos(0.0008 * date.getTime()) +
           (Math.random() - 0.5) / 2);
-    return [date, Math.round(traceLine * 100) / 100];
+    return [date, Math.round(traceLine * 10) / 10];
   }
 
   private initializeChartData() {
@@ -112,12 +112,15 @@ export class ChartViewComponent implements AfterViewInit {
         axisLine: {
           lineStyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
-            width: 1,
+            width: 0.6,
+            opacity: 0.6,
           },
         },
         axisTick: {
           linestyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
+            width: 0.6,
+            opacity: 0.6,
           },
         },
         axisLabel: {
@@ -168,6 +171,7 @@ export class ChartViewComponent implements AfterViewInit {
           markPoint: {
             symbolSize: 60,
             label: {
+              formatter: '{c}°',
               fontWeight: '600',
               fontSize: 10,
               color: '#fff',
@@ -180,6 +184,7 @@ export class ChartViewComponent implements AfterViewInit {
           markLine: {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
+              formatter: '{c}°',
               color: '#bbb',
               borderWidth: 0,
             },
@@ -206,6 +211,7 @@ export class ChartViewComponent implements AfterViewInit {
           markPoint: {
             symbolSize: 60,
             label: {
+              formatter: '{c}°',
               fontWeight: '600',
               fontSize: 10,
               color: '#fff',
@@ -218,6 +224,7 @@ export class ChartViewComponent implements AfterViewInit {
           markLine: {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
+              formatter: '{c}°',
               color: '#bbb',
               borderWidth: 0,
             },
@@ -244,6 +251,7 @@ export class ChartViewComponent implements AfterViewInit {
           markPoint: {
             symbolSize: 60,
             label: {
+              formatter: '{c}°',
               fontWeight: '600',
               fontSize: 10,
               color: '#fff',
@@ -256,6 +264,7 @@ export class ChartViewComponent implements AfterViewInit {
           markLine: {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
+              formatter: '{c}°',
               color: '#bbb',
               borderWidth: 0,
             },

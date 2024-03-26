@@ -42,35 +42,24 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     this.isDarkMode = !this.isDarkMode;
   }
 
+  private fonctionSinusoidale(date: Date, position: number, amplitude: number) {
+    const traceLine =
+      position +
+      amplitude *
+        (2 * Math.sin(0.00006 * date.getTime()) +
+          Math.cos(0.0008 * date.getTime()) +
+          (Math.random() - 0.5) / 2);
+    return [date, Math.round(traceLine * 10) / 10];
+  }
+
   private initializeChartData() {
     const currentTime = new Date();
     const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
     for (let i = 0; i < 1000; i++) {
       const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
-      this.dataSignal.push([
-        pastDate,
-        Math.round(
-          -30 +
-            60 * Math.sin(0.1 * pastDate.getTime()) +
-            Math.cos(3 * pastDate.getTime())
-        ),
-      ]);
-      this.dataPosition.push([
-        pastDate,
-        Math.round(
-          180 +
-            10 * Math.sin(0.1 * pastDate.getTime()) +
-            Math.cos(0.9 * pastDate.getTime())
-        ),
-      ]);
-      this.dataElevation.push([
-        pastDate,
-        Math.round(
-          45 +
-            5 * Math.sin(0.1 * pastDate.getTime()) +
-            Math.cos(0.9 * pastDate.getTime())
-        ),
-      ]);
+      this.dataSignal.push(this.fonctionSinusoidale(pastDate, -30, 12));
+      this.dataPosition.push(this.fonctionSinusoidale(pastDate, 180, 6));
+      this.dataElevation.push(this.fonctionSinusoidale(pastDate, 45, 3));
     }
   }
 
@@ -132,13 +121,16 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         axisLine: {
           lineStyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
-            width: 1,
+            width: 0.6,
+            opacity: 0.5,
           },
         },
         axisTick: {
           show: true,
           linestyle: {
             color: this.isDarkMode ? this.lightColor : this.darkColor,
+            width: 0.6,
+            opacity: 0.6,
           },
         },
         axisLabel: {
@@ -225,12 +217,20 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataSignal,
           markPoint: {
+            symbolSize: 75,
+            label: {
+              formatter: '{c} db',
+              fontWeight: '600',
+              fontSize: 10,
+              color: '#fff',
+            },
             data: [
               { type: 'max', name: 'Max' },
               { type: 'min', name: 'Min' },
             ],
           },
           markLine: {
+            precision: 1,
             data: [
               {
                 type: 'average',
@@ -238,9 +238,10 @@ export class ChartDoubleViewComponent implements AfterViewInit {
               },
             ],
             label: {
+              formatter: '{c} db',
               position: 'insideMiddleTop',
-              fontSize: 13,
-              color: this.isDarkMode ? this.lightColor : this.darkColor,
+              fontSize: 12,
+              color: '#bbb',
               borderWidth: 0,
             },
           },
@@ -263,6 +264,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           markPoint: {
             symbolSize: 60,
             label: {
+              formatter: '{c}°',
               fontWeight: '600',
               fontSize: 10,
               color: '#fff',
@@ -273,6 +275,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
+            precision: 1,
             data: [
               {
                 type: 'average',
@@ -280,9 +283,10 @@ export class ChartDoubleViewComponent implements AfterViewInit {
               },
             ],
             label: {
+              formatter: '{c}°',
               position: 'insideMiddleTop',
-              fontSize: 13,
-              color: this.isDarkMode ? this.lightColor : this.darkColor,
+              fontSize: 12,
+              color: '#bbb',
               borderWidth: 0,
             },
           },
@@ -305,6 +309,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           markPoint: {
             symbolSize: 60,
             label: {
+              formatter: '{c}°',
               fontWeight: '600',
               fontSize: 10,
               color: '#fff',
@@ -315,6 +320,8 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
+            precision: 1,
+            animate: true,
             data: [
               {
                 type: 'average',
@@ -322,9 +329,10 @@ export class ChartDoubleViewComponent implements AfterViewInit {
               },
             ],
             label: {
+              formatter: '{c}°',
               position: 'insideMiddleTop',
-              fontSize: 13,
-              color: this.isDarkMode ? this.lightColor : this.darkColor,
+              fontSize: 12,
+              color: '#bbb',
               borderWidth: 0,
             },
           },
@@ -336,23 +344,15 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     });
   }
 
-  private fonctionSinusoidale(position: number, amplitude: number) {
-    const date = new Date();
-    const traceLine =
-      position +
-      amplitude * Math.sin(0.1 * date.getTime()) +
-      Math.cos(3 * date.getTime());
-    return [date, Math.round(traceLine)];
-  }
-
   private updateChartData() {
     if (this.dataPosition.length > 1000) {
       this.dataSignal.shift();
       this.dataPosition.shift();
       this.dataElevation.shift();
     }
-    this.dataSignal.push(this.fonctionSinusoidale(-30, 90));
-    this.dataPosition.push(this.fonctionSinusoidale(180, 10));
-    this.dataElevation.push(this.fonctionSinusoidale(45, 5));
+    const date = new Date();
+    this.dataSignal.push(this.fonctionSinusoidale(date, -36, 15));
+    this.dataPosition.push(this.fonctionSinusoidale(date, 180, 6));
+    this.dataElevation.push(this.fonctionSinusoidale(date, 45, 3));
   }
 }
