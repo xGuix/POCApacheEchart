@@ -1,6 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input } from '@angular/core';
-import * as echarts from 'echarts/lib/echarts';
-import 'echarts/lib/chart/line';
+import * as echarts from 'echarts';
 
 @Component({
   selector: 'app-chart-double-view',
@@ -12,6 +11,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
   dataSignal: any[] = [];
   dataPosition: any[] = [];
   dataElevation: any[] = [];
+
   chart: any;
   isDarkMode = false;
   darkColor!: string;
@@ -49,7 +49,26 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         (2 * Math.sin(0.00006 * date.getTime()) +
           Math.cos(0.0008 * date.getTime()) +
           (Math.random() - 0.5) / 2);
-    return [date, Math.round(traceLine * 10) / 10];
+    const value = Math.round(traceLine * 10) / 10;
+    return [date, value];
+  }
+
+  private fonctionSinusoidaleWithMinMax(
+    date: Date,
+    position: number,
+    amplitude: number
+  ) {
+    const traceLine =
+      position +
+      amplitude *
+        (2 * Math.sin(0.00006 * date.getTime()) +
+          Math.cos(0.0008 * date.getTime()) +
+          (Math.random() - 0.5) / 2);
+    const value = Math.round(traceLine * 10) / 10;
+    const randomized = Math.random() * 10;
+    const min = (value - randomized).toFixed(1);
+    const max = (value + randomized).toFixed(1);
+    return [date, value, min, max];
   }
 
   private initializeChartData() {
@@ -59,7 +78,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
       this.dataSignal.push(this.fonctionSinusoidale(pastDate, -30, 12));
       this.dataPosition.push(this.fonctionSinusoidale(pastDate, 180, 6));
-      this.dataElevation.push(this.fonctionSinusoidale(pastDate, 45, 3));
+      this.dataElevation.push(
+        this.fonctionSinusoidaleWithMinMax(pastDate, 45, 3)
+      );
     }
   }
 
@@ -115,6 +136,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
       },
       xAxis: {
         type: 'time',
+        data: this.dataElevation.map((item) => item[0]),
         splitLine: {
           show: true,
         },
@@ -239,9 +261,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
             label: {
               formatter: '{c} db',
-              position: 'insideMiddleTop',
+              position: 'start',
               fontSize: 12,
-              color: '#bbb',
+              color: '#aaa',
               borderWidth: 0,
             },
           },
@@ -284,7 +306,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
             label: {
               formatter: '{c}°',
-              position: 'insideMiddleTop',
+              position: 'insideEndTop',
               fontSize: 12,
               color: '#bbb',
               borderWidth: 0,
@@ -330,12 +352,13 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
             label: {
               formatter: '{c}°',
-              position: 'insideMiddleTop',
+              position: 'insideEndBottom',
               fontSize: 12,
               color: '#bbb',
               borderWidth: 0,
             },
           },
+          markArea: {},
           tooltip: {
             show: true,
           },
@@ -353,6 +376,6 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     const date = new Date();
     this.dataSignal.push(this.fonctionSinusoidale(date, -36, 15));
     this.dataPosition.push(this.fonctionSinusoidale(date, 180, 6));
-    this.dataElevation.push(this.fonctionSinusoidale(date, 45, 3));
+    this.dataElevation.push(this.fonctionSinusoidaleWithMinMax(date, 45, 3));
   }
 }
