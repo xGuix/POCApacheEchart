@@ -12,9 +12,13 @@ export class ChartViewComponent implements AfterViewInit {
   dataTempTwo: any[] = [];
   dataTempThree: any[] = [];
   chart: any;
+
   isDarkMode = false;
   darkColor!: string;
   lightColor!: string;
+  oneBlueColor: string = '#0b5eb4';
+  twoOrangeColor: string = '#f2994a';
+  threeDarkYellowColor: string = '#f8cd41';
 
   constructor(private elementRef: ElementRef) {}
 
@@ -34,37 +38,73 @@ export class ChartViewComponent implements AfterViewInit {
     setInterval(() => {
       this.updateChartData();
       this.renderChart();
-    }, 300);
+    }, 1000);
   }
 
   toggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
   }
 
-  private fonctionSinusoidale(date: Date, position: number, amplitude: number) {
+  private fonctionSinusoidaleOne(
+    date: Date,
+    position: number,
+    amplitude: number
+  ) {
     const traceLine =
       position +
       amplitude *
-        (2 * Math.sin(0.00006 * date.getTime()) +
-          Math.cos(0.0008 * date.getTime()) +
+        (2 * Math.sin(0.000009 * date.getTime()) +
+          Math.cos(0.00003 * date.getTime()) +
+          (Math.random() - 0.5) / 2);
+    return [date, Math.round(traceLine * 10) / 10];
+  }
+
+  private fonctionSinusoidaleTwo(
+    date: Date,
+    position: number,
+    amplitude: number
+  ) {
+    const traceLine =
+      position +
+      amplitude *
+        (2 * Math.cos(0.000003 * date.getTime()) +
+          Math.sin(0.00009 * date.getTime()) +
+          (Math.random() - 0.5) / 2);
+    return [date, Math.round(traceLine * 10) / 10];
+  }
+
+  private fonctionSinusoidaleThree(
+    date: Date,
+    position: number,
+    amplitude: number
+  ) {
+    const traceLine =
+      position +
+      amplitude *
+        (2 * Math.sin(0.000003 * date.getTime()) +
+          Math.cos(0.00003 * date.getTime()) +
           (Math.random() - 0.5) / 2);
     return [date, Math.round(traceLine * 10) / 10];
   }
 
   private initializeChartData() {
     const currentTime = new Date();
-    const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
+    const oneMinuteEarlier = new Date(currentTime.getTime() - 1000000);
     for (let i = 0; i < 1000; i++) {
-      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
-      this.dataTempOne.push(this.fonctionSinusoidale(pastDate, 0, 1));
-      this.dataTempTwo.push(this.fonctionSinusoidale(pastDate, -10, 1));
-      this.dataTempThree.push(this.fonctionSinusoidale(pastDate, +10, 1));
+      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 1000);
+      this.dataTempOne.push(this.fonctionSinusoidaleOne(pastDate, 10, 1));
+      this.dataTempTwo.push(this.fonctionSinusoidaleTwo(pastDate, 9, 1));
+      this.dataTempThree.push(this.fonctionSinusoidaleThree(pastDate, 8, 1));
     }
   }
 
   private renderChart() {
     this.chart.setOption({
-      color: ['#87f7cf', '#72ccff', ' #fc97af'],
+      color: [
+        this.oneBlueColor,
+        this.twoOrangeColor,
+        this.threeDarkYellowColor,
+      ],
       title: {
         text: 'TEMPERATURE AXIS',
         textStyle: {
@@ -92,6 +132,45 @@ export class ChartViewComponent implements AfterViewInit {
             show: true,
             readOnly: true,
             title: 'Data View',
+            optionToContent: function (opt: any) {
+              let axisData = opt.xAxis[0].data;
+              let series = opt.series;
+              let table =
+                '<table style="width:60%;text-align:center"><tbody><tr>' +
+                '<td>Time</td>' +
+                '<td>' +
+                series[0].name +
+                '</td>' +
+                '<td>' +
+                series[1].name +
+                '</td>' +
+                '<td>' +
+                series[2].name +
+                '</td>' +
+                '</tr>';
+              for (var i = 0, l = axisData.length; i < l; i++) {
+                let firstDate = new Date(axisData[i]);
+                let formattedTime = firstDate.toLocaleTimeString();
+                table +=
+                  '<tr>' +
+                  '<td>' +
+                  formattedTime +
+                  '</td>' +
+                  '<td>' +
+                  series[0].data[i] +
+                  '</td>' +
+                  '<td>' +
+                  series[1].data[i] +
+                  '</td>' +
+                  '<td>' +
+                  series[2].data[i] +
+                  '</td>' +
+                  '</tr>';
+              }
+              table += '</tbody></table>';
+              return table;
+            },
+            lang: ['Data View', 'Close', 'Refresh'],
           },
           restore: {},
           saveAsImage: {
@@ -102,7 +181,7 @@ export class ChartViewComponent implements AfterViewInit {
         iconStyle: {
           borderColor: this.isDarkMode ? this.lightColor : this.darkColor,
         },
-        top: 125,
+        top: 150,
       },
       xAxis: {
         type: 'time',
@@ -130,10 +209,11 @@ export class ChartViewComponent implements AfterViewInit {
         },
       },
       yAxis: {
+        name: 'TEMPERATURE',
         type: 'value',
-        boundaryGap: [0, 0],
-        //min: -30,
-        //max: 30,
+        //boundaryGap: [0, 0],
+        min: 5,
+        max: 15,
         splitLine: {
           show: true,
         },
@@ -158,12 +238,12 @@ export class ChartViewComponent implements AfterViewInit {
           name: 'Fake Temperature 1',
           type: 'line',
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
           areaStyle: {
             opacity: 0.3,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -185,11 +265,11 @@ export class ChartViewComponent implements AfterViewInit {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
               formatter: '{c}°',
-              color: '#bbb',
+              color: this.oneBlueColor,
               borderWidth: 0,
             },
           },
-          stack: 'temperature',
+          //stack: 'temperature',
           tooltip: {
             show: true,
           },
@@ -198,12 +278,12 @@ export class ChartViewComponent implements AfterViewInit {
           name: 'Fake Temperature 2',
           type: 'line',
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
           areaStyle: {
             opacity: 0.3,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -225,11 +305,11 @@ export class ChartViewComponent implements AfterViewInit {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
               formatter: '{c}°',
-              color: '#bbb',
+              color: this.twoOrangeColor,
               borderWidth: 0,
             },
           },
-          stack: 'temperature',
+          //stack: 'temperature',
           tooltip: {
             show: true,
           },
@@ -238,12 +318,12 @@ export class ChartViewComponent implements AfterViewInit {
           name: 'Fake Temperature 3',
           type: 'line',
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
           areaStyle: {
             opacity: 0.3,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -265,11 +345,11 @@ export class ChartViewComponent implements AfterViewInit {
             data: [{ type: 'average', name: 'Avg' }],
             label: {
               formatter: '{c}°',
-              color: '#bbb',
+              color: this.threeDarkYellowColor,
               borderWidth: 0,
             },
           },
-          stack: 'temperature',
+          //stack: 'temperature',
           tooltip: {
             show: true,
           },
@@ -285,8 +365,8 @@ export class ChartViewComponent implements AfterViewInit {
       this.dataTempThree.shift();
     }
     const dateNow = new Date();
-    this.dataTempOne.push(this.fonctionSinusoidale(dateNow, 0, 1));
-    this.dataTempTwo.push(this.fonctionSinusoidale(dateNow, -10, 1));
-    this.dataTempThree.push(this.fonctionSinusoidale(dateNow, +10, 1));
+    this.dataTempOne.push(this.fonctionSinusoidaleOne(dateNow, 10, 1));
+    this.dataTempTwo.push(this.fonctionSinusoidaleTwo(dateNow, 9, 1));
+    this.dataTempThree.push(this.fonctionSinusoidaleThree(dateNow, 8, 1));
   }
 }

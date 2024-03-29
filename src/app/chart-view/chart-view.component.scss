@@ -1,5 +1,5 @@
 //Colors themes variables
-$dark-theme-bkg: rgba(41, 52, 65, 1);
+$dark-theme-bkg: #1c2c3a;
 $light-theme-bkg: rgba(246, 246, 246, 1);
 
 .darkContainer {
@@ -13,15 +13,15 @@ $light-theme-bkg: rgba(246, 246, 246, 1);
 .container{
     display: block;
     margin: auto;
-    max-width: 960px;
+    max-width: 1100px;
     padding-top: 9px;
     border-radius: 24px;
     box-shadow: 3px 3px 9px grey;
 }
 
 .chart{
-    max-width: 900px;
-    height: 450px;
+    max-width: 1000px;
+    height: 500px;
     margin: 24px auto;
     padding: 24px auto;
 }

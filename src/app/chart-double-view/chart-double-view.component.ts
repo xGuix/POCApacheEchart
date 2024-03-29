@@ -11,11 +11,15 @@ export class ChartDoubleViewComponent implements AfterViewInit {
   dataSignal: any[] = [];
   dataPosition: any[] = [];
   dataElevation: any[] = [];
-
   chart: any;
+
   isDarkMode = false;
   darkColor!: string;
   lightColor!: string;
+  oneBlueColor: string = '#0b5eb4';
+  twoOrangeColor: string = '#f2994a';
+  threeDarkYellowColor: string = '#f8cd41';
+  fourYellowColor: string = '#f7f494';
 
   constructor(private elementRef: ElementRef) {}
 
@@ -35,7 +39,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     setInterval(() => {
       this.updateChartData();
       this.renderChart();
-    }, 300);
+    }, 1000);
   }
 
   toggleDarkMode() {
@@ -46,8 +50,8 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     const traceLine =
       position +
       amplitude *
-        (2 * Math.sin(0.00006 * date.getTime()) +
-          Math.cos(0.0008 * date.getTime()) +
+        (2 * Math.sin(0.000006 * date.getTime()) +
+          Math.cos(0.00003 * date.getTime()) +
           (Math.random() - 0.5) / 2);
     const value = Math.round(traceLine * 10) / 10;
     return [date, value];
@@ -66,16 +70,23 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           (Math.random() - 0.5) / 2);
     const value = Math.round(traceLine * 10) / 10;
     const randomized = Math.random() * 10;
-    const min = (value - randomized).toFixed(1);
-    const max = (value + randomized).toFixed(1);
+    const rand = Math.random();
+    let min = value;
+    let max = value;
+    if (rand < 0.05) {
+      min = value - randomized;
+    }
+    if (rand > 0.95) {
+      max = value + randomized;
+    }
     return [date, value, min, max];
   }
 
   private initializeChartData() {
     const currentTime = new Date();
-    const oneMinuteEarlier = new Date(currentTime.getTime() - 60000);
+    const oneMinuteEarlier = new Date(currentTime.getTime() - 1000000);
     for (let i = 0; i < 1000; i++) {
-      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 60);
+      const pastDate = new Date(oneMinuteEarlier.getTime() + i * 1000);
       this.dataSignal.push(this.fonctionSinusoidale(pastDate, -30, 12));
       this.dataPosition.push(this.fonctionSinusoidale(pastDate, 180, 6));
       this.dataElevation.push(
@@ -86,7 +97,12 @@ export class ChartDoubleViewComponent implements AfterViewInit {
 
   private renderChart() {
     this.chart.setOption({
-      color: ['#72ccff', ' #fc97af', '#87f7cf'],
+      color: [
+        this.oneBlueColor,
+        this.twoOrangeColor,
+        this.threeDarkYellowColor,
+        this.fourYellowColor,
+      ],
       title: {
         text: 'DECIBELS & DEGREES AXIS',
         left: 24,
@@ -104,12 +120,6 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           color: this.isDarkMode ? this.lightColor : this.darkColor,
         },
       },
-      grid: {
-        top: 84,
-        left: 90,
-        width: 690,
-        height: 300,
-      },
       toolbox: {
         show: true,
         orient: 'vertical',
@@ -121,6 +131,39 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             show: true,
             readOnly: true,
             title: 'Data View',
+            optionToContent: function (opt: any) {
+              let axisData = opt.xAxis[0].data;
+              let series = opt.series;
+              let table =
+                '<table style="width:60%;text-align:center"><tbody><tr>' +
+                '<td>Time</td>' +
+                '<td>' +
+                series[0].name +
+                '</td>' +
+                '<td>' +
+                series[1].name +
+                '</td>' +
+                '</tr>';
+              for (var i = 0, l = axisData.length; i < l; i++) {
+                let firstDate = new Date(axisData[i]);
+                let formattedTime = firstDate.toLocaleTimeString();
+                table +=
+                  '<tr>' +
+                  '<td>' +
+                  formattedTime +
+                  '</td>' +
+                  '<td>' +
+                  series[0].data[i][1] +
+                  '</td>' +
+                  '<td>' +
+                  series[1].data[i][1] +
+                  '</td>' +
+                  '</tr>';
+              }
+              table += '</tbody></table>';
+              return table;
+            },
+            lang: ['Data View', 'Close', 'Refresh'],
           },
           restore: {},
           saveAsImage: {
@@ -131,8 +174,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         iconStyle: {
           borderColor: this.isDarkMode ? this.lightColor : this.darkColor,
         },
-        top: 135,
-        right: 15,
+        top: 150,
       },
       xAxis: {
         type: 'time',
@@ -192,10 +234,11 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           type: 'value',
           position: 'right',
           alignTicks: false,
-          min: 0,
-          max: 360,
+          boundaryGap: [0, 0],
+          //min: 0,
+          //max: 360,
           scale: true,
-          interval: 90,
+          interval: 120,
           splitLine: {
             show: true,
             opacity: 0.5,
@@ -228,12 +271,12 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           name: 'Fake signal',
           type: 'line',
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
           areaStyle: {
             opacity: 0.3,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -263,7 +306,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
               formatter: '{c} db',
               position: 'start',
               fontSize: 12,
-              color: '#aaa',
+              color: this.oneBlueColor,
               borderWidth: 0,
             },
           },
@@ -276,9 +319,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           type: 'line',
           yAxisIndex: 1,
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -306,9 +349,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
             label: {
               formatter: '{c}°',
-              position: 'insideEndTop',
+              position: 'end',
               fontSize: 12,
-              color: '#bbb',
+              color: this.twoOrangeColor,
               borderWidth: 0,
             },
           },
@@ -321,9 +364,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           type: 'line',
           yAxisIndex: 1,
           lineStyle: {
-            width: 1.2,
+            width: 1.5,
           },
-          smooth: true,
+          smooth: false,
           animation: false,
           showSymbol: false,
           symbolSize: 6,
@@ -352,16 +395,52 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             ],
             label: {
               formatter: '{c}°',
-              position: 'insideEndBottom',
+              position: 'end',
               fontSize: 12,
-              color: '#bbb',
+              color: this.threeDarkYellowColor,
               borderWidth: 0,
             },
           },
-          markArea: {},
           tooltip: {
             show: true,
           },
+        },
+        {
+          name: 'min',
+          type: 'line',
+          lineStyle: {
+            color: this.threeDarkYellowColor,
+            width: 0.72,
+          },
+          itemStyle: {
+            color: this.fourYellowColor,
+          },
+          symbol: 'triangle',
+          symbolSize: 9,
+          yAxisIndex: 1,
+          data: this.dataElevation.map((items) => [items[0], items[2]]),
+          smooth: false,
+          animation: false,
+          showSymbol: false,
+        },
+        {
+          name: 'max',
+          type: 'line',
+          lineStyle: {
+            color: this.threeDarkYellowColor,
+            width: 0.72,
+          },
+          itemStyle: {
+            color: this.fourYellowColor,
+          },
+          symbol: 'triangle',
+          symbolRotate: 180,
+          symbolSize: 9,
+          yAxisIndex: 1,
+          data: this.dataElevation.map((items) => [items[0], items[3]]),
+          smooth: false,
+          animation: false,
+          showSymbol: false,
         },
       ],
     });
