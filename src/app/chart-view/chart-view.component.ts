@@ -105,6 +105,7 @@ export class ChartViewComponent implements AfterViewInit {
         this.twoOrangeColor,
         this.threeDarkYellowColor,
       ],
+      backgroundColor: this.isDarkMode ? this.darkColor : this.lightColor,
       title: {
         text: 'TEMPERATURE AXIS',
         textStyle: {
@@ -131,20 +132,21 @@ export class ChartViewComponent implements AfterViewInit {
           dataView: {
             show: true,
             readOnly: true,
-            title: 'Data View',
+            title: 'Single Chart Data View',
             optionToContent: function (opt: any) {
+              console.log(opt.xAxis[0].data);
               let axisData = opt.xAxis[0].data;
               let series = opt.series;
               let table =
-                '<table style="width:60%;text-align:center"><tbody><tr>' +
-                '<td>Time</td>' +
-                '<td>' +
+                '<table style="width:90%; text-align:center;"><tbody><tr>' +
+                '<td><b>Time</td>' +
+                '<td><b>' +
                 series[0].name +
                 '</td>' +
-                '<td>' +
+                '<td><b>' +
                 series[1].name +
                 '</td>' +
-                '<td>' +
+                '<td><b>' +
                 series[2].name +
                 '</td>' +
                 '</tr>';
@@ -157,13 +159,13 @@ export class ChartViewComponent implements AfterViewInit {
                   formattedTime +
                   '</td>' +
                   '<td>' +
-                  series[0].data[i] +
+                  series[0].data[i][1] +
                   '</td>' +
                   '<td>' +
-                  series[1].data[i] +
+                  series[1].data[i][1] +
                   '</td>' +
                   '<td>' +
-                  series[2].data[i] +
+                  series[2].data[i][1] +
                   '</td>' +
                   '</tr>';
               }
@@ -176,6 +178,7 @@ export class ChartViewComponent implements AfterViewInit {
           saveAsImage: {
             show: true,
             title: 'Export Image',
+            backgroundColor: this.darkColor ? this.lightColor : this.darkColor,
           },
         },
         iconStyle: {
@@ -185,6 +188,7 @@ export class ChartViewComponent implements AfterViewInit {
       },
       xAxis: {
         type: 'time',
+        data: this.dataTempOne.map((item) => item[0]),
         splitLine: {
           show: true,
         },
@@ -212,7 +216,7 @@ export class ChartViewComponent implements AfterViewInit {
         name: 'TEMPERATURE',
         type: 'value',
         //boundaryGap: [0, 0],
-        min: 5,
+        min: 3,
         max: 15,
         splitLine: {
           show: true,
@@ -235,7 +239,7 @@ export class ChartViewComponent implements AfterViewInit {
       },
       series: [
         {
-          name: 'Fake Temperature 1',
+          name: 'Fake Temp 1',
           type: 'line',
           lineStyle: {
             width: 1.5,
@@ -249,11 +253,11 @@ export class ChartViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataTempOne,
           markPoint: {
-            symbolSize: 60,
+            symbolSize: 48,
             label: {
               formatter: '{c}°',
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9.3,
               color: '#fff',
             },
             data: [
@@ -262,20 +266,34 @@ export class ChartViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
+            data: [
+              {
+                name: 'Temp1Now',
+                yAxis: this.dataTempOne[this.dataTempOne.length - 1][1],
+              },
+            ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              padding: [0, 0, 6, 13],
               formatter: '{c}°',
               color: this.oneBlueColor,
               borderWidth: 0,
             },
           },
-          //stack: 'temperature',
           tooltip: {
             show: true,
           },
         },
         {
-          name: 'Fake Temperature 2',
+          name: 'Fake Temp 2',
           type: 'line',
           lineStyle: {
             width: 1.5,
@@ -289,11 +307,11 @@ export class ChartViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataTempTwo,
           markPoint: {
-            symbolSize: 60,
+            symbolSize: 48,
             label: {
               formatter: '{c}°',
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9.3,
               color: '#fff',
             },
             data: [
@@ -302,20 +320,35 @@ export class ChartViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
+            data: [
+              {
+                name: 'Temp2Now',
+                yAxis: this.dataTempTwo[this.dataTempTwo.length - 1][1],
+              },
+            ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              distance: 3,
+              padding: [0, 0, 0, 15],
               formatter: '{c}°',
               color: this.twoOrangeColor,
               borderWidth: 0,
             },
           },
-          //stack: 'temperature',
           tooltip: {
             show: true,
           },
         },
         {
-          name: 'Fake Temperature 3',
+          name: 'Fake Temp 3',
           type: 'line',
           lineStyle: {
             width: 1.5,
@@ -329,11 +362,11 @@ export class ChartViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataTempThree,
           markPoint: {
-            symbolSize: 60,
+            symbolSize: 48,
             label: {
               formatter: '{c}°',
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9.3,
               color: '#fff',
             },
             data: [
@@ -342,14 +375,28 @@ export class ChartViewComponent implements AfterViewInit {
             ],
           },
           markLine: {
-            data: [{ type: 'average', name: 'Avg' }],
+            data: [
+              {
+                name: 'Temp3Now',
+                yAxis: this.dataTempThree[this.dataTempThree.length - 1][1],
+              },
+            ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
+              fontSize: 14,
+              fontWeight: 'bold',
+              padding: [0, 0, 6, 13],
               formatter: '{c}°',
               color: this.threeDarkYellowColor,
               borderWidth: 0,
             },
           },
-          //stack: 'temperature',
           tooltip: {
             show: true,
           },

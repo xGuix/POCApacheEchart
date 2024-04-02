@@ -9,7 +9,7 @@ import * as echarts from 'echarts';
 export class ChartDoubleViewComponent implements AfterViewInit {
   @Input() chartId!: string;
   dataSignal: any[] = [];
-  dataPosition: any[] = [];
+  dataAzimut: any[] = [];
   dataElevation: any[] = [];
   chart: any;
 
@@ -88,7 +88,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
     for (let i = 0; i < 1000; i++) {
       const pastDate = new Date(oneMinuteEarlier.getTime() + i * 1000);
       this.dataSignal.push(this.fonctionSinusoidale(pastDate, -30, 12));
-      this.dataPosition.push(this.fonctionSinusoidale(pastDate, 180, 6));
+      this.dataAzimut.push(this.fonctionSinusoidale(pastDate, 180, 6));
       this.dataElevation.push(
         this.fonctionSinusoidaleWithMinMax(pastDate, 45, 3)
       );
@@ -103,6 +103,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
         this.threeDarkYellowColor,
         this.fourYellowColor,
       ],
+      backgroundColor: this.isDarkMode ? this.darkColor : this.lightColor,
       title: {
         text: 'DECIBELS & DEGREES AXIS',
         left: 24,
@@ -130,18 +131,21 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           dataView: {
             show: true,
             readOnly: true,
-            title: 'Data View',
+            title: 'Double Chart Data View',
             optionToContent: function (opt: any) {
               let axisData = opt.xAxis[0].data;
               let series = opt.series;
               let table =
-                '<table style="width:60%;text-align:center"><tbody><tr>' +
-                '<td>Time</td>' +
-                '<td>' +
+                '<table style="width:90%; text-align:center;"><tbody><tr>' +
+                '<td><b>Time</td>' +
+                '<td><b>' +
                 series[0].name +
                 '</td>' +
-                '<td>' +
+                '<td><b>' +
                 series[1].name +
+                '</td>' +
+                '<td><b>' +
+                series[2].name +
                 '</td>' +
                 '</tr>';
               for (var i = 0, l = axisData.length; i < l; i++) {
@@ -158,6 +162,9 @@ export class ChartDoubleViewComponent implements AfterViewInit {
                   '<td>' +
                   series[1].data[i][1] +
                   '</td>' +
+                  '<td>' +
+                  series[2].data[i][1] +
+                  '</td>' +
                   '</tr>';
               }
               table += '</tbody></table>';
@@ -169,6 +176,7 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           saveAsImage: {
             show: true,
             title: "Export l'image",
+            backgroundColor: this.isDarkMode ? this.darkColor : this.lightColor,
           },
         },
         iconStyle: {
@@ -282,11 +290,13 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataSignal,
           markPoint: {
-            symbolSize: 75,
+            symbolSize: 60,
             label: {
-              formatter: '{c} db',
+              formatter: function (params: any) {
+                return Math.round(params.value) + ' db';
+              },
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9.3,
               color: '#fff',
             },
             data: [
@@ -298,14 +308,22 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             precision: 1,
             data: [
               {
-                type: 'average',
-                name: 'Avg',
+                name: 'SignalNow',
+                yAxis: this.dataSignal[this.dataSignal.length - 1][1],
               },
             ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
-              formatter: '{c} db',
-              position: 'start',
               fontSize: 12,
+              fontWeight: 'bold',
+              padding: [0, 0, 3, 9],
+              formatter: '{c} db',
               color: this.oneBlueColor,
               borderWidth: 0,
             },
@@ -325,13 +343,13 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           animation: false,
           showSymbol: false,
           symbolSize: 6,
-          data: this.dataPosition,
+          data: this.dataAzimut,
           markPoint: {
-            symbolSize: 60,
+            symbolSize: 48,
             label: {
               formatter: '{c}°',
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9,
               color: '#fff',
             },
             data: [
@@ -343,14 +361,22 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             precision: 1,
             data: [
               {
-                type: 'average',
-                name: 'Avg',
+                name: 'AzimutNow',
+                yAxis: this.dataAzimut[this.dataAzimut.length - 1][1],
               },
             ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
-              formatter: '{c}°',
-              position: 'end',
               fontSize: 12,
+              fontWeight: 'bold',
+              padding: [0, 0, 6, 13],
+              formatter: '{c}°',
               color: this.twoOrangeColor,
               borderWidth: 0,
             },
@@ -372,11 +398,11 @@ export class ChartDoubleViewComponent implements AfterViewInit {
           symbolSize: 6,
           data: this.dataElevation,
           markPoint: {
-            symbolSize: 60,
+            symbolSize: 48,
             label: {
               formatter: '{c}°',
               fontWeight: '600',
-              fontSize: 10,
+              fontSize: 9,
               color: '#fff',
             },
             data: [
@@ -389,14 +415,22 @@ export class ChartDoubleViewComponent implements AfterViewInit {
             animate: true,
             data: [
               {
-                type: 'average',
-                name: 'Avg',
+                name: 'ElevationNow',
+                yAxis: this.dataElevation[this.dataElevation.length - 1][1],
               },
             ],
+            symbol: ['none', 'arrow'],
+            symbolOffset: [0, [2, 0]],
+            symbolSize: 15,
+            symbolRotate: 90,
+            lineStyle: {
+              width: 0,
+            },
             label: {
-              formatter: '{c}°',
-              position: 'end',
               fontSize: 12,
+              fontWeight: 'bold',
+              padding: [0, 0, 6, 13],
+              formatter: '{c}°',
               color: this.threeDarkYellowColor,
               borderWidth: 0,
             },
@@ -447,14 +481,14 @@ export class ChartDoubleViewComponent implements AfterViewInit {
   }
 
   private updateChartData() {
-    if (this.dataPosition.length > 1000) {
+    if (this.dataAzimut.length > 1000) {
       this.dataSignal.shift();
-      this.dataPosition.shift();
+      this.dataAzimut.shift();
       this.dataElevation.shift();
     }
     const date = new Date();
     this.dataSignal.push(this.fonctionSinusoidale(date, -36, 15));
-    this.dataPosition.push(this.fonctionSinusoidale(date, 180, 6));
+    this.dataAzimut.push(this.fonctionSinusoidale(date, 180, 6));
     this.dataElevation.push(this.fonctionSinusoidaleWithMinMax(date, 45, 3));
   }
 }
